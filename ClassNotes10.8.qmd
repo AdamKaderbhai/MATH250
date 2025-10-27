@@ -1,0 +1,145 @@
+---
+title: "ClassNotes 8.10 and 10.10"
+author: Adam Kaderbhai
+format: html
+embed-resources: true
+---
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)
+```
+
+First let's include an image in our document. Make sure `dumpster_fire.jpg`
+
+
+![Dumpster Fire](dumpster_fire.jpeg)
+
+
+
+
+if you need, you can read about the resizing this, etc. The label serves as alt text
+
+Another very important Quarto things is footnotes^[like this].
+
+## Project Planning
+
+I strongly reccomend a two step process as you choose your topics.
+
+1.) Generate **Lots** of ideas. Don't judge write them down. This means making a bunch of plots and numerical summaries, and it means reading more about the data and color.
+
+Wait until a different day
+
+2.) Cross of the ones that are too hard or too basic. Decide on your top 3 Start with number 1 and then make some exploratory plots to see if its acually working.
+
+
+## Pivoting!
+
+Remember `pivot_longer` handles when some columns have names that are actually values of unnamed variables. Let's consider the `billboard` dataset
+
+```{r}
+glimpse(billboard)
+view(billboard)
+```
+We need to convert the `wk` columns using `pivot_longer`
+
+```{r}
+billboard_long <- billboard %>%
+  pivot_longer(cols = starts_with("wk"),
+               names_to = "week",
+               values_to = "rank")
+
+
+billboard_long %>% 
+  head() %>% 
+  gt::gt()
+
+```
+Wishlist:
+- So many stupid `NAs`
+
+- The word `week` is repeated in an unhelpful way
+
+
+
+## Oct 10
+
+Let's resolve this issues one at a time
+```{r}
+billboard_long <- billboard %>%
+  pivot_longer(cols = starts_with("wk"),
+               names_to = "week",
+               values_to = "rank",
+               values_drop_na = TRUE)
+
+
+billboard_long %>% 
+  head(10) %>% 
+  gt::gt()
+```
+We could fix the "wk" problem with a mutate, possible using `str_replace_all`. Instead let's do it directly with `pivot_longer`.
+
+```{r}
+billboard_long <- billboard %>%
+  pivot_longer(cols = starts_with("wk"),
+               names_to = "week",
+               values_to = "rank",
+               values_drop_na = TRUE,
+               names_prefix = "wk")
+
+
+billboard_long %>% 
+  head(10) %>% 
+  gt::gt()
+```
+
+
+Remeber our goal is a ggplot showing song ranks over time. Let's try:
+```{r}
+ggplot(billboard_long, aes(x= rank,
+                           y = week,
+                           color = track)) +
+  geom_line(show.legend = FALSE) # so we can see the plot
+```
+
+
+
+```{r}
+billboard_long <- billboard %>%
+  pivot_longer(cols = starts_with("wk"),
+               names_to = "week",
+               values_to = "rank",
+               values_drop_na = TRUE,
+               names_prefix = "wk",
+               names_transform = as.numeric)
+
+
+billboard_long %>% 
+  head(10) %>% 
+  gt::gt()
+
+glimpse(billboard_long)
+```
+```{r}
+ggplot(billboard_long, aes(x= week,
+                           y = rank,
+                           color = track)) +
+  geom_line(show.legend = FALSE) # so we can see the plot
+```
+
+
+I only want to keep the 4 songs that were on the charts the longest. To do this, I'm going to add a column showing the total number of weeks 
+
+```{r}
+billboard_long <- billboard_long %>% 
+  group_by(track) %>% 
+  mutate(weeks_charted = max(week)) 
+
+glimpse(billboard_long)
+  
+```
+
+
+

@@ -1,0 +1,134 @@
+---
+title: "HomeWork4"
+author: Adam Kaderbhai
+format: html
+embed-resources: true
+---
+
+```{r}
+#| message: false
+library(tidyverse)
+library(readxl)
+```
+
+```{r}
+astronauts <- read_excel("astronauts.xlsx")
+glimpse(astronauts) 
+
+```
+
+
+## Problem 1
+```{r}
+#| fig-alt: a bar chart showing the top 5 astronauts with longest (Extra Vehicular Activity) EVA Hours. 
+
+top_5_evas <- astronauts %>%
+  slice_max(eva_hrs_mission, n = 5) %>%
+   select(name, eva_hrs_mission)
+
+
+ggplot(top_5_evas, 
+       aes(x = eva_hrs_mission, 
+           y = name, 
+           fill = name)) +
+  geom_bar(stat = "identity") +  # Googled: uses actual `eva_hrs_mission` instead of frequency counts
+  labs(x = "EVA Hours",
+       y = "Astronaut Name", 
+       title = "Top 5 Astronauts by EVA Hours") +
+  theme_minimal()
+```
+
+## Problem 2
+```{r}
+#| message: false
+top_5_occupations <- astronauts %>%
+  mutate(age = 2025 - year_of_birth) %>% 
+  group_by(occupation) %>% 
+  summarise(
+    count = n(),  
+    min_age = min(age),  
+    median_age = median(age),  
+    max_age = max(age)) %>%
+  arrange(desc(count)) %>%  
+  slice_head(n = 5) 
+  
+#glimpse(top_5_occupations) %>% 
+gt::gt(top_5_occupations)
+```
+
+## Problem 3
+```{r}
+#| message: false
+#| fig-alt: Line plot showing the total extravehicular activity (EVA) hours for missions, with individual data points colored by whether the astronaut was military or civilian (Green represents civilian status and orange represents military status), plotted against the year of the mission.
+
+astronauts %>%
+  group_by(year_of_mission, military_civilian) %>%
+  summarize(total_eva_hrs = sum(eva_hrs_mission)) %>%
+  ungroup() %>%
+  arrange(desc(total_eva_hrs)) %>% 
+  slice_head(n = 10) %>% 
+gt::gt()
+
+
+eva_by_year_status <- astronauts %>%
+  group_by(year_of_mission, military_civilian) %>%
+  summarize(total_eva_hrs = sum(eva_hrs_mission)) %>%
+  ungroup() %>%
+  arrange(desc(total_eva_hrs)) 
+
+
+ggplot(eva_by_year_status,
+       aes(x = year_of_mission,
+           y = total_eva_hrs,  
+           color = military_civilian)) +
+geom_line(show.legend = TRUE) +
+
+labs(y = "year of mission",
+         x = "Total Extravehicular Hours",
+         title = "A Line Plot showing The Total EVA Hours By Year and Status of an Astronaut",
+         color = "Astronaut Status") +
+scale_color_brewer(palette = "Dark2") +
+theme_minimal()
+
+  
+```
+
+## Problem 4
+```{r}
+#| message: false
+#| fig-alt: Scatter plot showing the top 10 ranks of average viewer engagement for setting terrain and monster type combinations in Scooby-Doo episodes. The x-axis is the Setting Terrains while the y-axis is the Engagement values. Each point on the plot represents different Monster types differentiated by color.
+
+scooby <- read_excel("scoobydata.xlsx")
+
+
+glimpse(scooby$setting_terrain)
+setting_terrain_insights <- scooby %>%
+  filter(!is.na(monster_type)) %>%
+  group_by(setting_terrain, monster_type) %>%
+  summarize(engagement = mean(engagement, na.rm = TRUE)) %>%
+  ungroup() %>%
+  arrange(desc(engagement)) %>% 
+  slice_head(n=10)
+
+gt::gt(setting_terrain_insights)
+
+ggplot(setting_terrain_insights,
+       aes(x = setting_terrain,  
+           y = engagement,
+           color = monster_type)) +
+geom_point(size = 3) +
+
+labs(y = "Engagement",
+         x = "Setting Terrain in the Episode",
+         title = "The Effect of Setting Terrain and Monster Type Combination on the average Engagment in Top 10 most engaged episodes in Scooby Doo",
+         color = "Monster Type") +
+scale_fill_brewer(palette = "Dark2") +
+theme_minimal()
+
+```
+
+
+This simple scatter plot shows which setting terrain and monster type combinations in Scooby-Doo episodes resulted in greater viewer engagement, based on the top 10 ranked averages. The 'Coast, Ghost' combination stands out with the highest average engagement, while 'Urban, Mythical' shows the lowest, This suggest that the most preferred Combination by the viewers is Coast Setting with a Ghost Monster.
+
+
+

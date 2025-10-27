@@ -1,0 +1,56 @@
+---
+title: "Class notes 9.8"
+author: "Adam Kaderbhai"
+date: "8 September 2025"
+format: html
+---
+
+If you have `editor: visual` in your YAML, please delete it.
+
+## Bar charts
+Bar charts are used to visualize 1-2 categorical variables. We'll explore this using the `Carseats` data set from the `ISLR2` package.
+
+```{r}
+#| message: false
+library(ISLR2)
+library(tidyverse)
+```
+
+Use the data command to view all the datasets
+
+```{r}
+glimpse(Carseats)
+```
+Let's Consider `Shelvelov` and `US`
+
+```{r}
+ggplot(Carseats, aes(x = ShelveLoc,
+                     fill = US )) + 
+  geom_bar() + 
+  scale_fill_brewer(palette = "Dark2")
+```
+This plot stresses the relative counts of the `ShelveLoc` variable. It also shows `US`, but relative proportions are not so clear. We can flip the variables to reverse this.
+
+```{r}
+ggplot(Carseats, aes(fill = ShelveLoc,
+                     x = US )) + 
+  geom_bar() + 
+  scale_fill_brewer(palette = "Dark2")
+```
+Let's stress the relative proportions. Same data, same aesthetics.
+
+```{r}
+ggplot(Carseats, aes(fill = ShelveLoc,
+                     x = US )) + 
+  geom_bar(position = "fill") + 
+  scale_fill_brewer(palette = "Dark2")
+```
+
+Check out the help file for more options. `?geom_bar`
+
+```{r}
+ggplot(Carseats, aes(fill = ShelveLoc,
+                     x = US )) + 
+  geom_bar(position = "dodge") + 
+  scale_fill_brewer(palette = "Dark2")
+```

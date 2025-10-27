@@ -1,0 +1,11 @@
+---
+title: "Class_Assignment9.17"
+author: "Adam Kaderbhai"
+format: html
+---
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)

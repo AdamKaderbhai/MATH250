@@ -1,0 +1,72 @@
+---
+title: "Class_Assignment9.17"
+author: "Adam Kaderbhai"
+format: html
+embed-resources: true
+---
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)
+library(modeldata)
+```
+# A Simple Bar chart showing the frequency of each specie included in the study
+```{r}
+#| message: false
+#| warning: false
+ggplot(scat, 
+       aes(x = Species,
+           fill = Species)) + 
+  geom_bar(show.legend = FALSE) + 
+  labs(title = "Frequency of Each Specie",
+       x = "Species",
+       y = "Frequency") +
+  scale_fill_brewer(palette = "Dark2") +
+  theme_minimal()
+```
+- `Bobcat` has the highest frequency, indicating it is the most frequently observed species in this dataset, with a frequency of approximately `60` observations.
+
+- `Coyote` has the second-highest frequency, with around `28` observations.
+
+- `Gray_fox` has the lowest frequency among the three species, with roughly `25` observations.
+# A boxplot showing the Variation in the Taper Index `TI` of Each specie found in Different Locations
+```{r}
+#| message: false
+#| warning: false
+ggplot(scat, 
+       aes(x = Location,
+                 y = TI,
+                 fill = Species)) +
+  geom_boxplot(show.legend = FALSE) +
+  facet_wrap(~Species) +
+  scale_fill_brewer(palette = "Dark2") +
+  theme_minimal()
+```
+- The median `TI` values are fairly similar across `Species` and `Location`, mostly between 1 and 2.
+
+- `Bobcat` scats tend to have slightly higher `TI` at the `edge` compared to `middle` and `off_edge`.
+
+- `Coyotes` show relatively consistent `TI` across locations, with a few outliers.
+
+- `Gray_foxes` have more variability, especially at the `off_edge` location, and one extreme outlier with very high `TI`.
+# A bar chart showing the relationship between Age and d15N Composition in the animal scat
+```{r}
+#| message: false
+#| warning: false
+ggplot(scat, 
+       aes(x = Age,
+           y = d15N,
+           fill = Species)) + 
+  geom_col(position = "dodge") + 
+  labs(title = " ",
+       x = "Age",
+       y = "d15N") +
+  scale_fill_brewer(palette = "Dark2") + theme_minimal()
+```
+`Coyotes` consistently have the highest `d15N` values at every age, often much higher than the other two species.
+
+`Bobcats` tend to fall in the middle, with moderately high d15N values.
+
+`Gray foxes` show the lowest d15N values overall, across all ages.

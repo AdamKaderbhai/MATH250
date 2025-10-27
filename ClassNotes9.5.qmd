@@ -1,0 +1,52 @@
+---
+title: "ClassNotes5.9"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed). You can also use `include : false` to run the code but not show anything, 'eval : false\` to show but not run the code
+
+```{r}
+#|eval: false
+library(tidyverse)
+```
+
+```{r}
+library(tidyverse)
+glimpse(penguins)
+```
+
+## Boxplots
+
+let's get a boxplot showing `bill_len` by `species`.
+
+```{r}
+#| warning: false
+ggplot(penguins, aes(y = bill_len,
+                     x = species)) +
+  geom_boxplot()
+
+```
+
+Here two observations are missing let's investigate
+
+By the way, **Never** include interactive commands like `View` and `install.packages` in a Quarto document

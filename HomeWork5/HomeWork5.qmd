@@ -1,0 +1,112 @@
+---
+author: "Adam Kaderbhai"
+title: "HomeWork 5"
+format: html
+embed-resources: true
+---
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)
+library(gt)
+library(fivethirtyeight)
+library(readxl)
+```
+
+
+## Problem 1
+```{r}
+airport_data_speeds <- read_excel("airport_data_speeds.xlsx")
+glimpse(airport_data_speeds)
+```
+
+
+```{r}
+airport_data_speeds_long <- airport_data_speeds %>%
+  pivot_longer(cols = c("SPRINT","AT&T","T-MOBILE","VERIZON"),
+               names_to = "Career",
+               values_to = "Speed")
+
+
+ggplot(airport_data_speeds_long,
+       aes(x = Speed,
+           y = Career,
+           fill = Career)) +
+  geom_boxplot(show.legend = FALSE) +
+  labs(x = "Speed",
+       y = "Career") +
+  scale_fill_brewer(palette = "Dark2") +
+  theme_minimal()
+
+```
+## Problem 2
+```{r}
+#| message: false
+airport_data_speeds_long %>%
+  group_by(`AIRPORT CODE`, Career) %>%
+  summarize(Speed = max(Speed)) %>%
+  ungroup() %>%
+  arrange(desc(Speed)) %>% 
+  head(n = 15) %>% 
+  
+  gt::gt()
+```
+Verizon was the fastest in ATL, MDW, ORD, BWI, RSW
+
+## Problem 3
+```{r}
+drinks_long <- drinks %>%
+  select(-total_litres_of_pure_alcohol) %>% 
+  filter(country == "China" | country == "Italy" | country == "Saudi Arabia" | country == "USA") %>% 
+  pivot_longer(cols = c("beer_servings","spirit_servings","wine_servings"),
+               names_to = "Alcohol_type",
+               values_to = "Servings") 
+  
+
+
+drinks_long %>% 
+  gt::gt()
+
+ggplot(drinks_long, 
+       aes(x = country,
+             y = Servings,
+             fill = Alcohol_type)) +
+  
+  geom_col(position = "dodge") +
+  labs(x = "Country",
+       y = "Servings",
+       title = "What'll ya have?",
+       fill = "Alcohol type") +
+  scale_fill_brewer(palette = "Dark2") +
+  theme_minimal()
+```
+## Problem 4
+
+```{r}
+teeth <- read_excel("teeth.xlsx")
+glimpse(teeth)
+```
+
+
+```{r}
+#| message: false
+teeth_wide <- teeth %>% 
+  pivot_wider(id_cols = Country,
+              names_from = Quantity,
+              values_from = Amount) 
+
+ggplot(teeth_wide, aes(x = Sugar,
+                       y = DMFT)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) + # Learnt from gemini, method = "lm" tells R to make it a straight line while se = FALSE tells R to remove the grey ribbon showing the confidence interval
+  labs(title = "Tidy Toothday") +
+  theme_minimal()
+
+```
+
+
+
+
+

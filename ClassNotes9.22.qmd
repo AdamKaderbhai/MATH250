@@ -1,0 +1,70 @@
+---
+author: Adam Kaderbhai
+title: "ClassNotes"
+format: html
+embed-resources: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)
+```
+
+# More on Mutate
+
+```{r}
+glimpse(penguins)
+```
+
+Let's convert the bill measurements from mm to inches and add .
+
+```{r}
+penguins_murica <-penguins %>%
+  mutate(bill_len_in = bill_len * 0.03937008,
+         bill_dep_in = bill_dep * 0.03937008,
+         species = tolower(species),
+         island = tolower(island)
+         )
+
+glimpse(penguins_murica)
+```
+
+## Grouped summaries
+To start, check out the `summarize` verb
+
+```{r}
+penguins %>%
+  summarize(bill_len_avg = mean(bill_len,
+                                na.rm = TRUE),
+            bill_len_sd = sd(bill_len,
+                                na.rm = TRUE) )
+```
+
+I'd really like this for each species. There are two main ways to do this. The most direct is the `.by` argument
+
+
+```{r}
+penguins %>%
+  summarize(bill_len_avg = mean(bill_len,
+                                na.rm = TRUE),
+            bill_len_sd = sd(bill_len,
+                                na.rm = TRUE),
+            .by = species)
+```
+
+The older way is technically better but less elegant:
+
+```{r}
+penguins %>%
+  group_by(species) %>%
+  summarize(bill_len_avg = mean(bill_len,
+                                na.rm = TRUE),
+            bill_len_sd = sd(bill_len,
+                                na.rm = TRUE) )
+  
+```
+

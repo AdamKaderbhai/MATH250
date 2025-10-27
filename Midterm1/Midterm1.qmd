@@ -1,0 +1,177 @@
+---
+title: "Midterm1"
+author: "Adam Kaderbhai"
+format: html
+embed-resources: true
+---
+
+```{r}
+#| message: false
+library(tidyverse)
+library(readxl)
+library(gt)
+```
+
+```{r}
+#| message: false
+coffee <- read_excel("coffee.xlsx")
+gss <- read_csv("gss.csv")
+```
+
+
+## Problem 1
+The  data contain reviews for `1312 arabica and 28 robusta coffee beans`, collected from the `Coffee Quality Institute's` review pages in January 2018 by Buzzfeed Data Scientist `James LeDoux`. The reviews were conducted by the Institute's trained reviewers. The dataset features include Quality Measures, Bean Metadata, and Farm Metadata, with the Quality Measures having their own variables. The coffee beans were rated on a 0-100 scale from many different countries.
+
+Information about Coffee Quality Institute and how many reviews of each species of coffee i.e "reviews for 1312 arabica and 28 robusta coffee beans" is not obvious is not obvious from the tidy Tuesday github.
+
+## Problem 2
+```{r}
+quantile(coffee$flavor)
+
+IQR <- 7.75 - 7.33
+
+1.5*IQR # Test for outliers
+7.33 - 0.63 # Max outliers
+7.75 + 0.63 # Min outliers
+
+```
+Since the data in the 0th percentile is 0.00 which is way below 6.7 hence it is the obvious outlier
+
+```{r}
+coffee2 <- coffee %>% 
+filter(flavor != 0)
+
+ggplot(coffee2, aes( x = flavor)) +
+
+  geom_boxplot(fill = "green") +
+  theme_minimal() +
+  
+  labs(title = "The 5 number summary of flavor rating in Coffee2 Dataset")
+  
+  
+```
+```{r}
+ggplot(coffee, aes( x = flavor)) +
+
+  geom_boxplot(fill = "green") +
+  theme_minimal()
+  
+  
+```
+To see the significance of removing 0 as an obvious outlier I plotted to box plots with and without the removing the 0 outlier. The difference is clear, visually removing the 0 outlier makes more sense as it makes it easier to see the spread of the flavor ratings
+
+## Problem 3
+
+
+```{r}
+coffee_sm <- coffee %>% 
+  filter(number_of_bags>300,
+         color != "Green") %>% 
+  
+  select(farm_name,
+         country_of_origin,
+         color,
+         flavor,
+         contains("number")) %>% 
+  arrange(desc(flavor))
+                    
+                  
+glimpse(coffee_sm)
+```
+## Problem 4
+```{r}
+#| warning: false
+ggplot(coffee2,
+       aes(x = flavor,
+           y = is.na(coffee2$variety),
+           fill = is.na(coffee2$variety))) +
+  geom_boxplot(show.legend = FALSE) +
+  labs(x = "Variety Missing",
+       y = "Flavor rating", 
+       title = "Does mystery coffee taste better?",
+       caption = "Source: Tidy Tuesday 2020-07-07") +
+  scale_fill_brewer(palette = "Dark2") +
+  theme_minimal()
+```
+
+## Problem 5
+```{r}
+coffee2 %>%
+  group_by(country_of_origin) %>%
+  summarize(count = n(),
+            flavor = mean(flavor)) %>%
+  ungroup() %>%
+  arrange(desc(count)) %>% 
+  slice_head(n = 5) %>% 
+  gt::gt() %>% 
+  tab_header(title ="A table showing the five most common countries of origin in coffee2 dataset")
+
+
+```
+
+## Problem 6
+
+```{r}
+#| message: false
+
+coffee2 %>%
+filter(country_of_origin == "Mexico" | country_of_origin == "Colombia" | 
+         country_of_origin == "Guatemala" | country_of_origin == "Brazil" | 
+         country_of_origin == "Taiwan") %>%
+  group_by(country_of_origin, processing_method) %>%
+  summarize(flavor = mean(flavor)) %>%
+  ungroup() %>%
+  arrange(country_of_origin, desc(flavor)) %>% 
+
+ggplot(aes(x = country_of_origin,
+             y = flavor,
+             fill = processing_method)) +
+  
+  geom_col(position = "dodge") +
+  labs(x = "Country of Origin",
+       y = "Flavor Rating",
+       title = "Flavor Rating by Processing Method per Country",
+       fill = "Processing Method") +
+  scale_fill_brewer(palette = "Dark2",
+                    na.value = "brown") +
+  theme_minimal()
+
+
+
+
+```
+To measure the popularity of various `processing methods` in the top 5 most common countries in `coffee2` I used `mean flavor rating as a metric`. In `Brazil` `Semi-washed/semi-pulped` yields the highest average  `flavor rating`. In `Colombia`, `Natural/Dry yields` highest `average flavor rating`. In `Guatemala` `other` methods yield highest `average flavor rating`, In `Mexico` `natural/dry` yields highest average `flavor rating`. In `Taiwan` `pulped natural/honey` yields highest average `flavor rating`. 
+
+From observation all the methods yield very high average flavor rating close to 8. There is no one processing method dominant in all the countries. Every countries use different processing methods, Countries like `Brazil` and `Taiwan` use all the 5 different processing methods in the dataset. `Colombia` uses the least which is 3 while `Guatemala` and `Mexico` use 4 different `processing methods`.
+
+`NAs` in Processing method are present in all the countries. The reason why I included the `NAs` is because they have their respecive `mean flavor rating` and they could be representing a processing method in the dataset.
+
+## Problem 7
+
+```{r}
+#| message: false
+year_tvhours_by_marital <- gss %>%
+  filter(marital!= "No answer") %>% 
+  group_by(year, marital) %>%
+  summarize(tvhours = mean(tvhours)) %>% 
+  ungroup()
+  
+  
+  
+ggplot(year_tvhours_by_marital, 
+       aes(x = year, 
+           y = tvhours, 
+           color = marital)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Average TV Hours Over Time by Marital Status",
+       x = "Year",
+       y = "Average TV Hours",
+       color = "Marital Status") +
+  theme_minimal()
+  
+```
+
+
+
+

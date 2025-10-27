@@ -1,0 +1,74 @@
+---
+title: " HomeWork2"
+format: html
+embed-resources: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| message: false
+library(tidyverse)
+library(modeldata)
+```
+## Question 1
+
+```{r}
+#| message: false
+glimpse(attrition)
+
+ggplot(attrition, 
+       aes( x = MonthlyIncome,
+            fill = Education,)) +
+  geom_boxplot(show.legend = FALSE) +
+  labs(x = "Monthly Income",
+       y = "Education",
+       title = "Learn to Earn") +
+  scale_fill_brewer(palette = "Dark2")  +
+  theme_minimal()
+```
+## Question 2
+```{r}
+ggplot(attrition, 
+       aes(x = Age)) +
+  geom_histogram(binwidth = 4.5,
+                 color = "black",
+                 fill = "palegreen") +
+  labs(x = "Age",
+       y = "Count") + 
+  theme_minimal()
+```
+## Question 3
+```{r}
+ggplot(attrition, aes(fill = JobSatisfaction,
+                     x = Attrition )) + 
+  geom_bar(position = "dodge") + 
+  scale_fill_brewer(palette = "Dark2") +
+  theme_minimal()
+
+```
+## Question 4
+```{r}
+ggplot(attrition, aes(fill = Attrition,
+                      x = JobSatisfaction)) + 
+  geom_bar(position = "fill") + 
+  scale_fill_brewer(palette = "Dark2")+
+  theme_minimal()
+```
+
+## Question 5
+
+```{r}
+#| message: false
+ggplot(attrition, 
+       aes(x = MonthlyIncome,
+           fill = EducationField)) +
+  geom_histogram() +
+  labs(x = "Montly Income",
+       title = "Income by field") +
+  facet_wrap(~EducationField) +
+  scale_color_brewer(palette = "Dark2") +
+  theme_minimal()
+
+```
+

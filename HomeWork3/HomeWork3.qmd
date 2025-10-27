@@ -1,0 +1,72 @@
+---
+title: "HomeWork3"
+author: Adam Kaderbhai
+format: html
+embed-resources: true
+---
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)
+library(nycflights13)
+```
+
+```{r}
+View(flights)
+help(flights)
+```
+
+
+# Problem 1 
+
+```{r}
+flights_sm <- select(flights,
+                     dest,
+                     dep_time,
+                     sched_dep_time,
+                     dep_delay,
+                     arr_time,
+                     sched_arr_time,
+                     arr_delay)
+
+glimpse(flights_sm)
+```
+# Problem 2
+## a.)
+```{r}
+A
+```
+
+## b.)
+```{r}
+filter(flights_sm,
+       dep_delay >= 1 &
+         arr_delay < 0)
+```
+## c.)
+```{r}
+help(between)
+filter(flights_sm,
+       between(arr_time, 100, 700))
+```
+
+# Problem 3
+## a.)
+```{r}
+flights_sm %>%
+  arrange(desc(dep_delay), desc(arr_delay))
+```
+## b.)
+```{r}
+flights_sm %>%
+  arrange(desc(is.na(dep_time)), desc(dep_time))
+```
+# Problem 4
+```{r}
+flights_sm %>%
+  mutate(delay_difference = dep_delay - arr_delay,
+         gained_time = delay_difference > 0)
+```
+

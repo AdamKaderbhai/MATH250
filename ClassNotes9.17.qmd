@@ -1,0 +1,40 @@
+---
+title: "Class notes template"
+format: html
+embed-resources: true
+---
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)
+```
+
+## Filtering `NA`s
+
+The `penguins` data set contains some missing values that can complicate things. How many `bill_len`
+
+```{r}
+is.na(penguins$bill_len)
+sum(is.na(penguins$bill_len))
+mean(is.na(penguins$bill_len))
+```
+
+About 0.6% are missing. Two Total. Let's filter the set to just keep these. The obvious thing does not work
+
+```{r}
+penguins %>%
+  filter(bill_len == NA) # no matches 
+```
+
+```{r}
+penguins %>%
+  filter(is.na(bill_len))
+```
+We keep non-missing values like so:
+```{r}
+penguins %>%
+  filter(!is.na(bill_len))
+```
+

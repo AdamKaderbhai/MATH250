@@ -1,0 +1,208 @@
+---
+title: "Sex, Color Blindness or Your Monitor: What shapes the color perception"
+author: Adam Kaderbhai
+format: html
+embed-resources: true
+---
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)
+library(readr)
+library(gt)
+library(ggplot2)
+```
+
+```{r}
+#| message: false
+color_survey <- read_csv("color_survey.csv") %>% 
+glimpse()
+```
+
+In this project, I investigate the question that arose after reading the 2010 xkcd color survey^[https://blog.xkcd.com/2010/05/03/color-survey-results/]: if colorblindness isn't the biggest factor in color perception, what is? To find the answer, I analyzed `user responses` against their `monitor type`, `sex`, and `colorblind status`. A crucial preparation step was ensuring data quality; after discovering the `spam_prob` column contained odds ratios, not probabilities, I filtered the dataset to remove all responses with odds greater than one. This provided a clean foundation to explore what truly influences our vocabulary for color.
+
+
+
+```{r}
+color_survey_clean <- color_survey %>%
+  
+  
+  filter(spam_prob <= 1) %>% 
+  
+  mutate(
+    sex = case_when(
+      y_chromosome == 1 ~ "Male",
+      y_chromosome == 0 ~ "Female"
+    ),
+
+    colorblind_status = case_when(
+      colorblind == 1 ~ "colorblind",
+      colorblind == 0 ~ "non-colorblind"
+    )
+  ) %>%
+  
+ 
+  select(response, monitor, sex, colorblind_status) %>% 
+  glimpse()
+
+```
+
+For each variable (`sex`, `colorblind_status`, and `monitor`), I counted the `total_responses`. I then determined the number of `unique_responses` by removing repeats with the `n_distinct()` function. To normalize the comparison, I calculated the ratio of `unique_responses` to `total_responses` for each category.
+
+```{r}
+sex_proportions <- color_survey_clean %>%
+  group_by(sex) %>%
+  summarise(
+    total_responses = n(),
+    unique_responses = n_distinct(response)
+  ) %>%
+  mutate(
+    proportion_unique = unique_responses / total_responses
+  )
+
+sex_proportions
+```
+
+```{r}
+cb_proportions <- color_survey_clean%>%
+  group_by(colorblind_status) %>% 
+  summarise(
+    total_responses = n(),
+    unique_responses = n_distinct(response)
+  ) %>%
+  mutate(
+    proportion_unique = unique_responses / total_responses
+  )
+
+cb_proportions
+```
+
+
+```{r}
+monitor_proportions <- color_survey_clean %>%
+  group_by(monitor) %>% 
+  summarise(
+    total_responses = n(),
+    unique_responses = n_distinct(response)
+  ) %>%
+  mutate(
+    proportion_unique = unique_responses / total_responses
+  )
+
+monitor_proportions
+
+```
+I summarized the results from the previous operations in a single `gt` table and created a bar chart to show what variable had the highest unique proportion
+
+```{r}
+summary_table <- bind_rows(
+  
+  sex_proportions %>%
+    mutate(category = "Sex") %>% 
+    rename(group = sex),
+  
+  cb_proportions %>%
+    mutate(category = "Colorblind_Status") %>%
+    rename(group = colorblind_status),
+  
+  monitor_proportions %>%
+    mutate(category = "Monitor") %>%
+    rename(group = monitor)
+) %>%
+  
+  filter(!is.na(group) & group != "monitor-other") %>% 
+  gt(groupname_col = "category") %>% 
+  
+  tab_header(
+    title = "Analysis of Color Response Richness",
+    subtitle = "Comparing unique response rates across different demographic groups"
+  )
+
+  
+
+
+summary_table
+```
+
+```{r}
+#| fig-alt: "A faceted bar chart with three panels comparing the proportion of unique color responses. The 'Monitor' panel shows that CRT monitor users have a dramatically higher proportion (over 11%) than LCD users (around 4.5%). The 'Colorblind_Status' and 'Sex' panels show smaller differences between their respective groups."
+
+summary_data <- bind_rows(
+  
+  sex_proportions %>%
+    mutate(category = "Sex") %>% 
+    rename(group = sex),
+  
+  cb_proportions %>%
+    mutate(category = "Colorblind_Status") %>%
+    rename(group = colorblind_status),
+  
+  monitor_proportions %>%
+    mutate(category = "Monitor") %>%
+    rename(group = monitor)
+) %>%
+  
+  filter(!is.na(group) & group != "monitor-other")
+
+
+ggplot(summary_data, 
+       aes(x = group,
+           y = proportion_unique,
+           fill = group)) +
+  
+  # Now we can add our geoms, like the bars
+  geom_col(position = "dodge",
+           show.legend = FALSE) +
+  
+  scale_fill_brewer(palette = "Dark2") +
+  
+  theme_minimal() +
+  
+   labs(
+    x = "variable group",
+    y = "unique proportion",
+    title = "Proportion of Unique Color Responses by Variable Group"
+  ) +
+  
+  
+  
+  facet_wrap(~ category, scales = "free_x")
+```
+The analysis, visualized in the faceted bar chart above, provides a clear answer to the project's central question. It reveals that the strongest predictor of color vocabulary richness is not biology, but technology. The "Monitor" panel shows the most dramatic result: users with older CRT monitors had a proportion of unique responses (nearly 12%) that was more than double that of users with modern LCD screens (around 4.5%). CRTs can appear to have better color due to their superior contrast ratio and ability to produce true blacks, which makes colors pop more vividly^[https://displaymate.com/crtvslcd.html]. 
+
+The second most significant factor was colorblind status, which, paradoxically, also led to a richer vocabulary. Colorblind participants showed a unique response rate of about 8%, substantially higher than the 4.5% for non-colorblind participants. The colorblind participants, for whom the standard color vocabulary is unreliable, are forced to create more descriptive and idiosyncratic names to communicate their perception. This results in a higher proportion of unique responses, demonstrating how a gap in shared language can drive linguistic innovation.^[https://en.wikipedia.org/wiki/Linguistic_relativity]
+
+Finally, sex had the smallest effect on vocabulary diversity, with females using a slightly higher proportion of unique color names than males, though this difference was marginal compared to the other two factors.
+
+```{r}
+#| fig-alt: "A horizontal bar chart of the top 10 color names from CRT users. 'Green', 'blue', and 'purple' are the most frequent."
+
+top_10_crt_words <- color_survey_clean %>%
+  filter(monitor == "CRT") %>%
+  count(response, name = "count", sort = TRUE) %>%
+  slice_max(order_by = count, n = 10)
+
+ggplot(top_10_crt_words, 
+       aes(y = reorder(response, count),  
+           x = count)) +
+  
+  geom_col(fill = "darkorange") +
+  
+  labs(
+    title = "Top 10 Most Common Color Names for CRT Monitor Users",
+    y = "Color Name",
+    x = "Number of Submissions"
+  ) +
+  
+  theme_minimal()
+  
+```
+
+While the `CRT` user group demonstrated a high proportion of unique color names, this does not mean they abandoned the standard vocabulary. To understand the core of their color language, this chart visualizes their 10 most frequently submitted responses. The results show that their vocabulary is still firmly anchored by fundamental color terms, with "green," "blue," and "purple" being the most common by a significant margin. This provides important context to our main finding: the "CRT effect" is not about replacing common words, but about supplementing them with a long tail of more descriptive, unique terms. Interestingly, the presence of more specific names like "light green" and "teal" within the top 10 itself hints at a tendency toward greater specificity even among the most popular responses.
+
+
+
+
+

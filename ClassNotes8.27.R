@@ -1,7 +1,7 @@
 #Class Notes wednesday
 
 library(readxl)
-scooby <- read+excel("scooby.xlsx")
+scooby <- read_excel("scooby.xlsx")
 
 mean(scooby$imdb)
 ?mean
@@ -20,3 +20,5 @@ library(tidyverse)
 ggplot(scooby, aes(y = series_name, 
                    x = imdb)) +
   geom_boxplot()
+
+
