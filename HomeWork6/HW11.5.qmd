@@ -56,7 +56,6 @@ addmargins(penguins_table)
 ```
 # Problem 4
 
-```{r}
+[My Github Repo](https://github.com/AdamKaderbhai/MATH250/blob/main/HomeWork6) ^[AdamKaderbhai Github Repo]
 
-```
 
