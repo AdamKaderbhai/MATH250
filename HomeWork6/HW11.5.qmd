@@ -2,6 +2,7 @@
 title: "HW 5.11"
 author: "Adam Kaderbhai"
 format: html
+embed-resources: true
 ---
 
 ```{r}
