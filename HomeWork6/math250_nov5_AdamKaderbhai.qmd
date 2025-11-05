@@ -34,17 +34,16 @@ ggplot(price_data, aes(x = variable,
 ```
 Hypothesis: The company's claim that the average price of their own seats is $110 is False.
 
+Alternative: $H_a: \mu \ne 100$ 
+
 Although the company's average price of carseats is very close from their claim of `$110`, the actual average price of their car seats is `$116` this is still lower than the average price of their competitors whose average price is `$125`.
 
 
 # Problem 2
 
 ```{r}
-sd(Carseats$CompPrice)
-
-1.645 * (15.33/sqrt(400))
-
-mean(Carseats$CompPrice)
+Carseats$Price %>% 
+  t.test(mu = 100)
 ```
 The margin of error is 124.975 ± 1.261
 
