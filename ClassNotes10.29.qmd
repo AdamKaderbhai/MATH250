@@ -1,0 +1,30 @@
+---
+title: "ClassNotes10.29"
+format: html
+embed-resources: true
+---
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)
+```
+
+## The t-test
+
+Lets consider penguins' bill lengths
+
+```{r}
+glimpse(penguins)
+mean(penguins$bill_len,
+     na.rm = TRUE)
+```
+
+A field guide says the averahe length of all penguin bills in this population is 43mm. Is this plausible in light of the data? To start answering this we could make a histogram.
+
+```{r}
+ggplot(penguins, aes(x = bill_len)) +
+  geom_histogram()
+```
+

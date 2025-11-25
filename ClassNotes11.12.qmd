@@ -1,0 +1,76 @@
+---
+title: "Class notes template"
+format: html
+embed-resources: true
+---
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)
+library(readxl)
+trout <- read_excel("trout.xlsx")
+```
+ 
+```{r}
+glimpse(trout)
+```
+
+Do trout at the different locations have different hemoglobin levels?
+
+$H_0$: the population means of `Hemo` are the same for all locations.
+
+$H_a$: the population means of `Hemo` are not the same for all locations.
+
+```{r}
+trout <- trout %>% 
+  mutate(Location = as.factor(Location))
+
+ggplot(trout, aes(x = Location,
+                  y = Hemo)) +
+  geom_boxplot() +
+  geom_jitter()
+```
+
+Let's run the test.
+
+```{r}
+model <- aov(Hemo ~ Location, 
+             data = trout)
+summary(model)
+```
+
+The tiny p-value indicates good evidence against the null. We can conclude that `Location` does give information about `Hemo`. Trout at different locations do seem to have different `Hemo` levels.
+
+This does **not** say anything about which groups might be different. To do that, we need to do some pairwise comparisons. However, if we just run all of those directly, there is a high probability of getting at least one small p-value just by chance, even if there really isn't a difference.
+
+## The Tukey post-hoc test
+
+To correctly follow up a positive ANOVA, use a *Tukey Honest Standard Differences Test*, which does a pairwise comparison for each pair of groups, correcting for the multiple tests.
+
+```{r}
+TukeyHSD(model)
+```
+
+There is good evidence that 1 and 2 are different. The evidence that 1 and 3 are different is weaker, and the evidence that 1 and 4 are different is certainly insufficient.
+
+## Example: penguins
+
+$H_0$: bill length is the same for all three species.
+
+$H_1$: bill length is not the same.
+
+```{r}
+ggplot(penguins, aes(x = bill_len,
+                     y = species)) + 
+  geom_boxplot()
+```
+
+```{r}
+model <- aov(bill_len ~ species,
+             data = penguins)
+summary(model)
+```
+
+There is very strong evidence ($p < 4\times 10^{-16}$) that `bill_len` is not independent from `species`.

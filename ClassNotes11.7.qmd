@@ -1,0 +1,58 @@
+---
+title: "Class notes 11.7"
+format: html
+embed-resources: true
+---
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)
+```
+
+## Chi-squared goodness of fit testing
+
+The $\chi^2$ test is used for a single categorical variable. Let's do an example using `diamonds`.
+
+Suppose we have a sample of size 250 from this set. Is it consistent with the claim that all diamond colors are equally probable?
+
+$H_0:$ All colors have equal proportions in the population
+
+$H_a$: All colors do **not** have equal proportions in the population
+
+```{r}
+set.seed(0)
+diamonds_sample <- diamonds %>% 
+  slice_sample(n = 250)
+```
+
+Next we get a visualization. 
+
+```{r}
+ggplot(diamonds_sample, aes(x = color)) +
+  geom_bar()
+```
+
+Looks like the proportions aren't all the same, but it's still possible this is just due to chance in the sampling.
+
+First we get the counts for the different factor levels.
+
+```{r}
+t <- table(diamonds_sample$color)
+t
+
+p_null <- rep(1/7, times = 7)
+p_null # null hypothesis values
+```
+
+Now we run the test.
+
+```{r}
+chisq.test(t, p = p_null)
+```
+
+The p-value measures how consistent our data is with the null. Lower p-values represent stronger evidence against the null. 
+
+A p-value of $5.9 \times 10^{-5}$ represents very strong evidence against the null. We conclude the colors are not equally represented in the population. 
+

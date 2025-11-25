@@ -1,0 +1,78 @@
+---
+title: "HomeWork7"
+author: "Adam Kaderbhai"
+format: html
+embed-resources: true
+---
+
+```{r}
+#| message: false
+library(tidyverse)
+library(gt)
+```
+
+
+```{r}
+#| message: false
+
+attrition_small <- read_csv("attrition_small.csv")
+```
+
+# Problem 1
+
+The company claims that 10% of employees report their work/life balance as “best,” 65% report it as “better,” 20% as “good,” and only 5% as “bad.” Is this claim reasonable in light of the sample data?
+
+- $H_o$: The companies claim is true
+- $H_a$: The companies claim is false
+```{r}
+Observed_Worklife_by_count <- attrition_small %>% 
+  group_by(WorkLifeBalance) %>%
+  summarize(
+    count = n()
+  ) 
+
+gt(Observed_Worklife_by_count) %>%
+  tab_header("Work/Life Status by count")
+
+
+Observed <- c(27, 157, 49, 17)
+
+Probs <- c(.10, .65, .20, .05)
+
+
+
+chisq.test(Observed, p = Probs)
+```
+
+The companies claim would be reasonable if the sample data matched ours.
+
+
+# Problem 2
+
+The company claims that the education field of 55% of their employees is in the life science, 20% is in marketing, 20% is in technical, and 5% is other. Is this claim reasonable in light of the sample data?
+
+- $H_o$: The companies claim is true
+- $H_a$: The companies claim is false
+```{r}
+Education_field_by_count <- attrition_small %>% 
+  group_by(EducationField) %>%
+  summarize(
+    count = n()
+  ) 
+
+gt(Education_field_by_count) %>% 
+  tab_header("Education Field by Count")
+
+
+observed <- c(150, 44, 22, 34)
+
+probs <- c(.55, .20, .05, .20)
+
+chisq.test(observed, p = probs)
+
+```
+The companies claim would be reasonable if the sample data matched ours.
+
+
+
+

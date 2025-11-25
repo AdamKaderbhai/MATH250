@@ -1,0 +1,49 @@
+---
+title: "Class notes 11.14"
+format: html
+embed-resources: true
+---
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)
+library(readxl)
+parenting <- read_excel("parenting.xlsx")
+```
+
+## Linear regression
+
+We're considering the relationship between 2 quantitative variables. For instance, is Danielle's grumpiness level related to the amount of sleep baby gets?
+
+```{r}
+glimpse(parenting)
+```
+
+Regression considers a possible *linear* relationship.
+
+$H_0$: there is no linear relationship between the variables. The slop of the line of best fit is zero.
+
+$H_a$: there is a linear relationship between the variable. The slope of the line of best fit is non-zero
+
+A visualization is **essential** when doing a regerssion. You have to check that the relationship appears linear.
+
+```{r}
+ggplot(parenting, aes(x = baby.sleep,
+                      y = dan.grump)) + 
+  geom_point() +
+  geom_smooth(method = "lm",
+              se = FALSE)
+```
+
+We run the test with `lm`.
+
+```{r}
+model <- lm(dan.grump ~ baby.sleep, 
+            data = parenting)
+summary(model)
+```
+
+The model here is `dan.grump = 85.782 - 2.742 * baby.sleep`. The p-value of the slope is $8.45\times 10^{-10}$, indicating strong evidence against the null. We conclude that in the larger population (all days after the baby sleeps), Danielle's grumpiness level *is* impacted by the amount of sleep the baby got. 
+

@@ -1,5 +1,6 @@
 ---
-title: "Class notes template"
+title: "ClassNotes11.24"
+author: Adam Kaderbhai
 format: html
 embed-resources: true
 ---
@@ -9,5 +10,59 @@ embed-resources: true
 #| message: false
 
 library(tidyverse)
+```
+
+## Regression with a categorical explainer
+
+```{r}
+penguins_sm <- penguins %>% 
+  filter(species != "Adelie")
+
+ggplot(penguins_sm, aes(x = bill_dep,
+                        y = bill_len,
+                        color = species)) +
+  geom_point() +
+  geom_smooth(method = "lm",
+              se = FALSE) +
+  scale_color_brewer(palette = "Dark2") +
+  theme_minimal()
+```
+
+
+Regression with a categorical explanatory variable 
+- Well assume equal slopes for now
+Roughly, we want one model for chinstrap and one model for Gentoo
+
+Chinsteap -> y = mx+b
+Gentoo -> y = mx + b
+
+y = bill_len
+x = bill_dep
+
+
+More specifically y = {mx+b_chin
+                       mx + b_chin + b_diff (for gentoo)}
+                       
+Let X_2 = O if chistrap and 1 if gentoo
+
+y = b_
+
+
+
+```{r}
+model <- lm(bill_len ~ bill_dep + species,
+            data = penguins_sm)
+```
+The form of this model is $bill_len = \beta_0 + \beta_1 * bill_dep * \beta_2 (isgentoo)$
+
+```{r}
+model
+```
+
+```{r}
+library(broom)
+
+penguins_aug <- augment(model)
+glimpse()
 ```
 

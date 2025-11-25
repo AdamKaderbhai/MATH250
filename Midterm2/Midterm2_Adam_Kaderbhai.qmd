@@ -1,0 +1,202 @@
+---
+title: "Midterm 2"
+author: "Adam Kaderbhai"
+format: html
+embed-resources: true
+
+---
+
+```{r}
+#| message: false
+#| echo: false
+
+library(tidyverse)
+library(readr)
+library(gt)
+```
+
+
+
+```{r}
+#| message: false
+
+summer_school <- read_csv("summer_school.csv")
+cupid <- read_csv("cupid.csv")
+```
+
+
+# Problem 1 (Exploratory)
+```{r}
+summer_school_long <- summer_school %>%
+  pivot_longer(cols = starts_with("term"),
+               names_to = "terms",
+               values_to = "grades") %>% 
+  filter(!is.na(grades)) 
+
+
+summer_school_long %>% 
+  head() %>% 
+  gt()
+
+
+ggplot(summer_school_long, aes(x = grades,
+                               fill = grades)) +
+  geom_bar(show.legend = FALSE) +
+  
+  labs(x = "Letter Grade",
+       y = "Frequency",
+       title = "Making the grade",
+       caption = "Source: grades.xlsx") +
+  
+  scale_fill_brewer(palette = "Dark2") +
+    
+  theme_minimal()
+```
+
+# Problem 2
+
+- $H_o$: The High school's claim is true
+- $H_a$: The High school's claim is false
+```{r}
+t.test(summer_school$gpa, mu = 3.1, df = 39)
+```
+
+The high school's claim that the average GPA is 3.1 is reasonable. The resulting p-value of 0.365 is high to reject the Null hypothesis. The claimed mean of 3.1 falls  within the 95% confidence interval of [2.86, 3.19], suggesting a possible value for the mean GPA for the population.
+
+
+# Problem 3
+```{r}
+terms_summary<- summer_school %>%
+  pivot_longer(
+    cols = c(term1, term2), 
+    names_to = "Term",      
+    values_to = "Grade"      
+  ) %>%
+  
+
+  filter(!is.na(Grade)) %>%
+  group_by(Term) %>%
+  summarise(
+    Number = n(),
+    `DF Rate` = mean(Grade %in% c("D", "F"))
+  ) %>%
+  
+  mutate(Term = case_when(
+    Term == "term1" ~ 1,
+    Term == "term2" ~ 2
+  ))
+  
+  terms_summary %>% 
+  gt()
+```
+
+
+
+# Problem 4 (Exploratory)
+
+```{r}
+#| fig-alt: A plot showing Proportion of Drug Use by Body Type
+
+Top_5_bodytype <- cupid %>%
+  filter(!is.na(body_type)) %>%
+  group_by(body_type) %>%
+  summarize(
+    count = n()
+  ) %>% 
+  
+  arrange(desc(count)) %>%
+  slice_head(n = 5)
+
+gt(Top_5_bodytype) %>%
+  tab_header("Body type by count")
+
+
+
+cupid %>%
+  filter(body_type %in% Top_5_bodytype$body_type) %>%
+  filter(!is.na(drugs)) %>%
+ 
+  
+ggplot(aes(x = body_type, fill = drugs)) +
+  geom_bar(position = "fill") +
+  scale_fill_brewer(palette = "Dark2") +
+  labs(
+    title = "Proportion of Drug Use by Body Type",
+    x = "Body Type",
+    y = "Proportion",
+    fill = "Drug Use"
+  ) +
+  theme_minimal()
+```
+From the graph, drug usage does appear to vary across the different body type groups. For example, the proportion of `sometimes` users is visibly larger for the `curvy` and `thin` body types compared to the `athletic` and `fit` and `average` types. However, because the `never` category is dominant for all groups, the differences in drug use, while present, are not dramatic. Without a formal statistical test, we can only describe these variations and cannot conclude if they represent a significant, real-world relationship or are simply due to chance within this specific sample.
+
+
+
+
+# Problem 5 (Inferential)
+
+- $H_o$: Gallup's claim is true
+- $H_a$: Gallup's claim is false
+
+```{r}
+Observed_Orientation_by_count <- cupid %>% 
+  group_by(orientation) %>%
+  summarize(
+    count = n()
+  ) 
+
+gt(Observed_Orientation_by_count) %>%
+  tab_header("Orientation by count")
+```
+
+```{r}
+Observed <- c(138, 80, 1255)
+
+Probs <- c(0.034, 0.052, 0.914)
+
+
+
+chisq.test(Observed, p = Probs)
+```
+The claim that the cupid dataset is consistent with Gallup's national poll data is not reasonable. The resulting p-value of less than `2.2e-16` is extremely low, providing  evidence to reject the `null hypothesis` that the distributions are the same. This significant difference indicates that the proportions of sexual orientations in the OkCupid dataset are not representative of the general U.S. adult population.
+
+
+# Problem 6 (Exploratory)
+
+```{r}
+#| fig-alt: A plot showing The 6 Most Common Ethnicities Reported, counts include individual entries from multi-ethnic profiles
+
+individual_ethnicities <- cupid %>%
+  select(ethnicity) %>%
+  filter(!is.na(ethnicity)) %>%
+  separate_rows(ethnicity, sep = ",")
+  
+
+
+top_6_ethnicities <- individual_ethnicities %>%
+  filter(!is.na(ethnicity)) %>%
+  group_by(ethnicity) %>%
+  summarize(
+    count = n()
+  ) %>% 
+  
+  arrange(desc(count)) %>%
+  slice_head(n = 6)
+
+gt(top_6_ethnicities)
+
+ggplot(top_6_ethnicities, aes(x = fct_reorder(ethnicity, count), y = count)) +
+  geom_col(aes(fill = ethnicity), show.legend = FALSE) +
+  coord_flip() + 
+  labs(
+    title = "The 6 Most Common Ethnicities Reported",
+    subtitle = "Counts include individual entries from multi-ethnic profiles",
+    x = "Ethnicity",
+    y = "Total Mentions"
+  ) +
+  
+  scale_fill_brewer(palette = "Dark2") +
+  theme_minimal()
+```
+
+
