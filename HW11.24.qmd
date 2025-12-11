@@ -1,98 +1,87 @@
 ---
-title: "HW11.24"
-author: "Adam Kaderbhai"
-format: pdf
+title: "Class notes 11.24"
+format: html
+embed-resources: true
 ---
 
-## For each of the following problems,
-(a) Write null and alternative hypotheses appropriate to this study.
-(b) Compute the z-score of the sample mean.
-(c) Compute the p-value of the sample mean.
-(d) Are the results statistically significant at level $α=.05$?
-(e) What conclusions, if any, can be drawn from this study? Answer in ordinary human language.
-
-
-# Problem 1
-A laptop manufacturer claims that the mean life of the battery for a certain model of laptop is 6 hours. In a simple
-random sample of 80 laptops, the mean battery life is 5.9 hours. Assume $σ$ = 1.3 hours. Is the company’s claim
-reasonable?
-
-## a.) 
-- Null Hypothesis: The mean life of battery is 6 hours.
-- Alternative Hypothesis: The Mean life of the battery is less than 6 hours
-
-## b.)
 ```{r}
-(5.9 - 6) / (1.3/sqrt(80))
+#| label: setup
+#| message: false
+
+library(tidyverse)
 ```
 
-## c.)
+## Regression with a categorical explainer
+
+Let's look at non-adelie penguins.
+
 ```{r}
-pnorm(5.9, 6, 1.3/sqrt(80))
+penguins_sm <- penguins %>% 
+  filter(species != "Adelie")
+
+ggplot(penguins_sm, aes(x = bill_dep,
+                        y = bill_len,
+                        color = species)) +
+  geom_point() + 
+  geom_smooth(method = "lm",
+              se = FALSE) +
+  scale_color_brewer(palette = "Dark2")
 ```
 
-## d.)
-Since the p-value is greater than $α$ this means that the results are not satistically significant. We fail to reject the null hypothesis.
+[about 10 minutes on the board about the math]
 
-## e.)
-The sample average battery life (5.9 hours) is only 0.1 hour (6 minutes) below the company's claim of 6 hours. The p-value (~0.246) is larger than 0.05, so this difference is not statistically significant. This sample does not provide strong evidence that the true mean battery life is less than 6 hours.
+Let's actually get the model coefficients.
 
-# Problem 2
-A soft drink manufacturer claims that the mean calorie content of one of its sports drinks is 150 calories per bottle.
-In a simple random sample of 95 bottles, the mean is 158 calories. Is there suﬃcient evidence to conclude that the
-mean is actually more than 150 calories/bottle? Assume $σ$ = 5 calories.
-
-## a.)
-- Null hypothesis: The mean calorie content of one of its sports drinks is 150 calories per bottle.
-- Alternative hypothesis: The mean calorie content of one of its sports drinks is greater than 150 calories per bottle.
-
-## b.)
 ```{r}
-(158 - 150) / (5/sqrt(95))
+model <- lm(bill_len ~ bill_dep + species,
+            data = penguins_sm)
 ```
 
-## c.)
+The form of this model is $bill_len = \beta_0 + \beta_1 (billdep) + \beta_2 (isgentoo?)$
+
 ```{r}
-1 - pnorm(158, 150, 5/sqrt(95))
+model # just coefficients
+summary(model)
 ```
 
-## d.)
-since the p-value = 0 is less than $α$ the result is statistically significant. We can reject the null hypothesis.
+We can get a residual plot for this model, too. 
 
-## e.)
-The sample average of 158 calories is much higher than the claimed 150. Statistically, this difference is far too large to be explained by random chance (the p‑value is essentially zero), so we reject the company's claim.
-
-# Problem 3
-
-A travel brochure says that the mean duration of eruptions of a the Old Faithful geyser is 3.6 minutes. Use the
-faithful data set to test whether this claim is reasonable or not. Assume a population standard deviation of
-$σ$ = 1.2 minutes. p = .0615
-
-## a.)
-- Null hypothesis: The mean duration of eruptions 3.6 minutes
-- Alternative hypothesis: The mean duration of eruptions is not 3.6 minutes
-
-## b.)
 ```{r}
-sample_mean <- mean(faithful$eruptions)
+library(broom)
 
-sample_mean
-(sample_mean - 3.6) / (1.2/sqrt(272))
+penguins_aug <- augment(model)
+glimpse(penguins_aug)
+
+ggplot(penguins_aug, aes(x = .fitted,
+                         y = .resid)) +
+  geom_point()
 ```
 
-## c.)
+Looks great!
+
+## Categorical explainers with multiple levels
+
+What if we also want to consider Adelies?
+
 ```{r}
-pnorm(sample_mean, 3.6, 1.2/sqrt(272))
+model_full <- lm(bill_len ~ bill_dep + species,
+                 data = penguins)
+model_full
 ```
 
-## d.)
-Since the p-value is greater than $α$ this means that the results are not satistically significant. We fail to reject the null hypothesis.
+Let's conclude with a plot for this, too.
 
+```{r}
+ggplot(penguins, aes(x = bill_dep,
+                     y = bill_len,
+                     color = species)) +
+  geom_point() +
+  geom_smooth(method = "lm",
+              se = FALSE) +
+  scale_color_brewer(palette = "Dark2")
+```
 
-## e.)
-
-The average eruption in this sample is a little under the brochure’s 3.6 minutes, but the difference is small and could be due to random sampling. There is not enough evidence here to conclude the true mean differs from 3.6 minutes.
-
+We should consider whether adelies need a different slope. For that matter, should we allow different slopes for the other species?
 
 
 

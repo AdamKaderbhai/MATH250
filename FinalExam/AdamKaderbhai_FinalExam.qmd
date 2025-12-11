@@ -1,0 +1,197 @@
+---
+title: "Final Exam"
+format: html
+embed-resources: true
+---
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)
+library(broom)
+library(gt)
+```
+
+```{r}
+#| message: false
+pressure <- read_csv("pressure.csv")
+college <- read_csv("college.csv")
+billboard <- read_csv("billboard.csv")
+
+```
+
+# Problem 1
+
+$H₀$: The population means of systolic blood pressure are the same for all lifestyles (rural, suburban, urban)
+
+$H_a$: The population means of systolic blood pressure are NOT the same for all lifestyles (rural, suburban, urban)
+
+
+
+
+```{r}
+ggplot(pressure,
+       aes(x = lifestyle,
+           y = systolic,
+           fill = lifestyle)) +
+  geom_boxplot(show.legend = FALSE) +
+  geom_jitter(show.legend = FALSE) +
+  scale_fill_brewer(palette = "Dark2") +
+  theme_minimal()
+```
+
+```{r}
+model <- aov(systolic ~ lifestyle, 
+             data = pressure)
+summary(model)
+```
+Since the p-value < 0.05: There is sufficient statistical evidence that the population means of systolic blood pressure are NOT the same across lifestyles. In other words, systolic blood pressure is associated with lifestyle.
+
+
+```{r}
+TukeyHSD(model)
+```
+Post-hoc Tukey HSD tests confirm that all three pairwise comparisons are statistically significant (all p-values = 0). This indicates that each lifestyle group (rural, suburban, urban) has significantly different mean systolic blood pressure values.
+
+# Problem 2
+
+```{r}
+pressure$systolic %>% 
+  t.test(mu = 128)
+```
+Since your p-value (0.1743) > 0.05 we fail to reject the nul hypothesis. There is insufficient statistical evidence to conclude that Ohioans' average systolic blood pressure is different from 128. The data does not provide evidence that Ohioans are different from all Americans.
+
+# Problem 3
+
+$H₀$: Acceptance rate is NOT a statistically significant explainer of graduation rate
+$H_a$: Acceptance rate IS a statistically significant explainer of graduation rate
+
+
+
+```{r}
+College_Acceptance_Rate <- college  %>% 
+  mutate(Acceptance.Rate = (Accept/Apps) * 100)
+
+ggplot(College_Acceptance_Rate,
+       aes(x = Acceptance.Rate,
+           y = Grad.Rate)) +
+  geom_point() +
+  geom_smooth(method = "lm",
+              se = FALSE)
+
+cor(College_Acceptance_Rate$Acceptance.Rate, College_Acceptance_Rate$Grad.Rate)
+
+model <- lm(College_Acceptance_Rate$Grad.Rate ~ College_Acceptance_Rate$Acceptance.Rate,
+            data = College_Acceptance_Rate)
+summary(model)
+```
+Since the p-value (0.00326) < 0.05  We reject the Null Hypothesis. There IS statistically significant evidence that acceptance rate is a significant explainer of graduation rate (p = 0.00326). Specifically, colleges with lower acceptance rates tend to have higher graduation rates. For every 1% increase in acceptance rate, graduation rate decreases by approximately 0.34 percentage points.
+
+$Grad.Rate = 91.5323 - 0.3439*Acceptance.Rate$
+For every 1% increase in acceptance rate, graduation rate decreases by approximately 0.34 percentage points.
+
+```{r}
+College_Acceptance_Rate_aug <- augment(model)
+glimpse(College_Acceptance_Rate_aug)
+
+ggplot(College_Acceptance_Rate_aug, aes(x = .fitted,
+                       y = .resid)) +
+  geom_point() +
+  geom_smooth(method = "lm",
+              se = FALSE)
+```
+
+
+# Problem 4
+```{r}
+ggplot(College_Acceptance_Rate, aes(x = Acceptance.Rate,
+                     y = Grad.Rate,
+                     color = Private)) +
+  geom_point() +
+  geom_smooth(method = "lm",
+              se = FALSE) +
+  scale_color_brewer(palette = "Dark2")
+```
+```{r}
+model <- lm(Grad.Rate ~ Acceptance.Rate + Private, 
+            data = College_Acceptance_Rate)
+summary(model)
+```
+$Grad.Rate = 84.1887 - 0.3872*Acceptance.Rate + 14.7392*PrivateYes$
+
+- Intercept (84.1887): Predicted graduation rate for a public college with 0% acceptance rate
+
+- Acceptance. Rate (-0.3872): For every 1% increase in acceptance rate, graduation rate decreases by 0.3872 percentage points
+
+- PrivateYes (14.7392): Private colleges have 14.74 percentage points HIGHER graduation rates than public colleges
+
+```{r}
+Grad.Rate = 84.1887 - (0.3872*85) + (14.73929*1)
+Grad.Rate
+```
+The model predicts a graduation rate of approximately 66% for a private college with an 85% acceptance rate.
+
+# Problem 5
+
+## Do Highly-Rated Songs Dominate the Billboard #1 Spot Longer? 
+
+```{r}
+#| output: false
+glimpse(billboard)
+```
+For this exploration I have selected 4 variables from the dataset: `song`, `artist`, `weeks_at_number_one`and `overall_rating`
+
+I will rank the top 10 songs which have spent the most weeks as the number one song from the billboard from August 4, 1958 and January 11.
+```{r}
+top_10_songs <- billboard %>%
+  select(song, artist, weeks_at_number_one, overall_rating) %>%
+  arrange(desc(weeks_at_number_one)) %>% 
+  slice_head(n = 10)
+
+top_10_songs %>%
+  gt() %>%
+  tab_header(
+    title = "Songs with the Most Weeks at Billboard #1"
+  )
+```
+I then created a bar chart that ranks the songs with the most overall ratings in the dataset.
+
+```{r}
+ggplot(top_10_songs, aes(x = reorder(song, overall_rating), 
+                         y = overall_rating,
+                         fill = song)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() +  
+  #scale_fill_brewer(palette = "Dark2") +
+  labs(title = "Rating of Top 10 Billboard #1 Songs",
+       x = "Song",
+       y = "Overall Rating")
+
+```
+To check if they present in the list of songs which have lasted the longest on the billboard for being number 1 I created a scatterplot showing the relationship between the two variables.
+
+```{r}
+my_fav_song <- ggplot(top_10_songs, aes(x = overall_rating, 
+                         y = weeks_at_number_one,
+                         color = song)) +
+  geom_point(size = 3) +
+  labs(title = "Does Higher Rating Mean Longer Chart Dominance?",
+       x = "Overall Rating",
+       y = "Weeks at Number One") +
+  #scale_color_brewer(palette = "Dark2")
+  theme_minimal() +
+  annotate(geom = "label",
+           x = 9.35,
+           y = 14.5,
+           label = "My Favorite Song") +
+  annotate(geom = "segment",
+           x = 9.2,
+           y = 14,
+           xend = 9.93,
+           yend = 14,
+           arrow = arrow())
+my_fav_song
+```
+### Results 
+High ratings don't guarantee longer chart dominance. My favorite song **I Will Always Love You** by **Whitney Houston** has the highest rating (10.0) but only spent 14 weeks at billboard as the number 1 song. **Despacito** has the second-highest rating `(8.33)` yet charted for just `16` weeks. Meanwhile, **Old Town Road** by **Lil Nas X** with a much lower rating of 6.67 stayed at billboard number 1 song for 19 weeks. The Billboard Hot 100 chart rankings aredetermined by a combination of radio airplay, sales (physical & digital), and streaming data from sources tracked by Luminate, such as Spotify and Apple Music^[[Billboard Hot 100 Wikipedia](https://en.wikipedia.org/wiki/Billboard_Hot_100)].There are severals variables in the dataset that can explain this relationship better.

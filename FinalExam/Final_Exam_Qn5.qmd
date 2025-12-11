@@ -1,0 +1,88 @@
+---
+title: "Final Exam Qn5"
+author: "Adam Kaderbhai"
+format: html
+embedded-resaource: true
+---
+```{r}
+#| message: false
+library(tidyverse)
+library(gt)
+```
+
+```{r}
+#| message: false
+
+billboard <- read_csv("billboard.csv")
+```
+
+# Problem 5
+
+## Do Highly-Rated Songs Dominate the Billboard #1 Spot Longer? 
+
+```{r}
+#| output: false
+glimpse(billboard)
+```
+For this exploration I have selected 4 variables from the dataset: `song`, `artist`, `weeks_at_number_one`and `overall_rating`
+
+I will rank the top 10 songs which have spent the most weeks as the number one song from the billboard from August 4, 1958 and January 11.
+```{r}
+top_10_songs <- billboard %>%
+  select(song, artist, weeks_at_number_one, overall_rating) %>%
+  arrange(desc(weeks_at_number_one)) %>% 
+  slice_head(n = 10)
+
+top_10_songs %>%
+  gt() %>%
+  tab_header(
+    title = "Songs with the Most Weeks at Billboard #1"
+  )
+```
+
+I then created a bar chart that ranks the songs with the most overall ratings in the dataset.
+
+```{r}
+#| fig-alt: Horizontal bar chart of overall ratings for the top 10 Billboard number 1 songs, ranging from 10.0 ("I Will Always Love You") to 5.0 ("Last Night").
+
+ggplot(top_10_songs, aes(x = reorder(song, overall_rating), 
+                         y = overall_rating,
+                         fill = song)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() +
+  scale_fill_viridis_d(option = "turbo") +
+  labs(title = "Rating of Top 10 Billboard #1 Songs",
+       x = "Song",
+       y = "Overall Rating")
+
+```
+
+To check if they present in the list of songs which have lasted the longest on the billboard for being number 1 I created a scatterplot showing the relationship between the two variables.
+
+```{r}
+#| fig-alt: Scatter plot of Overall Rating vs. Weeks at Number One for 10 Billboard number 1 songs, color-coded by song with legend. Arrow highlights "I Will Always Love You" as the favorite song, illustrating that high ratings don't guarantee longer chart dominance.
+
+my_fav_song <- ggplot(top_10_songs, aes(x = overall_rating, 
+                         y = weeks_at_number_one,
+                         color = song)) +
+  geom_point(size = 3) +
+  labs(title = "Does Higher Rating Mean Longer Chart Dominance?",
+       x = "Overall Rating",
+       y = "Weeks at Number One") +
+  scale_color_viridis_d(option = "turbo") +
+  theme_minimal() +
+  annotate(geom = "label",
+           x = 9.35,
+           y = 14.5,
+           label = "My Favorite Song") +
+  annotate(geom = "segment",
+           x = 9.2,
+           y = 14,
+           xend = 9.93,
+           yend = 14,
+           arrow = arrow())
+my_fav_song
+```
+
+### Results 
+High ratings don't guarantee longer chart dominance. My favorite song **I Will Always Love You** by **Whitney Houston** has the highest rating (10.0) but only spent 14 weeks at billboard as the number 1 song. **Despacito** has the second-highest rating `(8.33)` yet charted for just `16` weeks. Meanwhile, **Old Town Road** by **Lil Nas X** with a much lower rating of 6.67 stayed at billboard number 1 song for 19 weeks. The Billboard Hot 100 chart rankings aredetermined by a combination of radio airplay, sales (physical & digital), and streaming data from sources tracked by Luminate, such as Spotify and Apple Music^[[Billboard Hot 100 Wikipedia](https://en.wikipedia.org/wiki/Billboard_Hot_100)].There are severals variables in the dataset that can explain this relationship better.

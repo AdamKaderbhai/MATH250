@@ -1,0 +1,11 @@
+---
+title: "ClassNotes12.3"
+author: "Adam Kaderbhai"
+format: html
+embedded-resources: true
+---
+
+```{r}
+library(tidyverse)
+```
+

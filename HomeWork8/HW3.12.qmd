@@ -1,0 +1,129 @@
+---
+title: "Class notes 12.1"
+format: html
+embed-resources: true
+---
+
+```{r}
+#| message: false
+library(tidyverse)
+library(broom)
+```
+
+
+# Problem 1
+
+Different Species have different Sepal width levels?
+
+$H_0$: the population means of `Sepal.Width` are the same for all `Species`
+
+$H_a$: the population means of `Sepal.width` are not the same for all   `Species`
+
+```{r}
+#| fig-alt: A jittered boxplot showing the distribution of Sepal.Width across thre different plant species.
+
+iris <- iris %>% 
+  mutate(Species = as.factor(Species))
+
+ggplot(iris, aes(x = Species,
+                  y = Sepal.Width)) +
+  geom_boxplot() +
+  geom_jitter()
+```
+
+
+```{r}
+model <- aov(iris$Sepal.Width ~ iris$Species)
+summary(model)
+```
+
+
+The tiny p-value indicates good evidence against the null. We can conclude that `Species` does give information about `Sepal.Width`. Plants of different `Species` do seem to have different `Sepal.Width`
+
+# Problem 2
+
+```{r}
+TukeyHSD(model)
+```
+There is sufficient evidence to show difference in Sepal.Width between the species versicolor - setosa
+There is sufficient evidence to show difference in Sepal.Width between the species virginica- setosa
+
+because for both of these the p_adj = 0 < 0.05?
+
+There is a slightly weak evidence to show difference in Sepal.Width between species virginica_versicolor since p_adj = 0.009 < 0.05
+
+
+# Problem 3
+
+Regression considers a possible *linear* relationship.
+
+$H_0$: there is no linear relationship between the variables. The slop of the line of best fit is zero.
+
+$H_a$: there is a linear relationship between the variable. The slope of the line of best fit is non-zero
+
+```{r}
+#| fig-alt: A linear regression model showing the relationship between Petal.Width and Sepal.Width
+
+ggplot(iris, aes(x = Sepal.Width,
+                      y = Petal.Width)) + 
+  geom_point() +
+  geom_smooth(method = "lm",
+              se = FALSE)
+```
+
+
+
+```{r}
+model <- lm(Petal.Width ~ Sepal.Width, 
+            data = iris)
+summary(model)
+
+```
+
+The model here is $Petal.Width = 3.157 - 0.640 * Sepal.Width$. The p-value of the slope is $4.073\times 10^{-6}$, indicating strong evidence against the null. We conclude that in the larger population Petal.Width is impacted by Sepal.Width
+
+
+# Problem 4
+
+```{r}
+#| fig-alt: A parallel plot showing the relationship between Petal.Width and Sepal.Width among thre different Species
+
+ggplot(iris, aes(x = Sepal.Width,
+                     y = Petal.Width,
+                     color = Species)) +
+  geom_point() +
+  geom_smooth(method = "lm",
+              se = FALSE) +
+  scale_color_brewer(palette = "Dark2")
+```
+
+
+```{r}
+model_par <- lm(Petal.Width ~ Sepal.Width + Species,
+                data = iris)
+summary(model_par)
+```
+
+The model is $Petal.Width = -0.73 + 0.28\times Sepal.Width + 1.27 \times Speciesversicolor + 1.9 \times Speciesvirginica$ where Specieversicolor is 1 if the Specie is Versicolor and 0 otherwise. Similarly for Speciesvirginica
+
+
+
+
+# Problem 5
+
+```{r}
+#| fig-alt: A residual plot showing .resid vs .fitted with three distinct vertical clusters of data points.
+
+iris_aug <- augment(model_par)
+glimpse(iris_aug)
+
+ggplot(iris_aug, aes(x = .fitted,
+                         y = .resid)) +
+  geom_point()
+```
+
+
+The residual plot shows three distinct clusters corresponding to the three species, which is expected for this model. Within each cluster, the points are randomly scattered  with no clear non-linear patterns, indicating that the linear assumption is valid. However, the vertical spread of residuals increases slightly from left to right, suggesting unequal variance, meaning the model's predictions are slightly less precise for flowers with larger petal widths.
+
+
+

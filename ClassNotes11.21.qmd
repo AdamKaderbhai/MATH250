@@ -1,6 +1,5 @@
 ---
-title: "ClassNotes 11.21"
-author: Adam Kaderbhai
+title: "Class notes 11.21"
 format: html
 embed-resources: true
 ---
@@ -13,12 +12,11 @@ library(tidyverse)
 curved <- read_csv("curved.csv")
 ```
 
-The `curved` data set is not a great candidate for linear regression but let's do one anyway
+The `curved` data set isn't a great candidate for linear regression, but let's do one anyway.
 
 ```{r}
-ggplot(curved, aes(x = x,
-                   y = y)) +
-  geom_point()+
+ggplot(curved, aes(x = x, y = y)) +
+  geom_point() + 
   geom_smooth(method = "lm",
               se = FALSE)
 ```
@@ -26,57 +24,59 @@ ggplot(curved, aes(x = x,
 Let's get the equation and the p-value, etc.
 
 ```{r}
-model <- lm(y ~ x,
+model <- lm(y ~ x, 
             data = curved)
 summary(model)
 ```
-In order to check the assumptions of our model we make a residual plot.
-In order to do this well, we'll use the function `broom::augment`
+
+In order to check the assumptions of our model, we make a residual plot. In order to do this well, we'll use the function `broom::augment`.
+
 ```{r}
 library(broom)
 curved_aug <- augment(model)
 glimpse(curved_aug)
 ```
-A residual shows residuals (difference between observed and fitted values) versus the fitted values.
+
+A residual plot shows residuals (difference between observed and fitted values) versus the fitted values.
 
 ```{r}
-ggplot(curved_aug, aes(x = .fitted,
+ggplot(curved_aug, aes(x = .fitted, 
                        y = .resid)) +
   geom_point() +
   geom_smooth(method = "lm",
               se = FALSE)
 ```
 
-We can 
+We can clearly see a pattern. If linear regression is appropriate, this should just be a pattern-less cloud. 
 
 ## Multiple regression
-let's return to the `parenting` set.
+
+Let's return to the `parenting` set.
 
 ```{r}
 library(readxl)
 parenting <- read_excel("parenting.xlsx")
 glimpse(parenting)
 ```
+
 Question: Do we get a better model if we consider both `dan.sleep` and `baby.sleep` while explaining `dan.grump`?
 
-let's do it and worry about whether it's a good idea later.
+Let's just do it and worry about whether it's a good idea later.
+
 ```{r}
-model_large <- lm(dan.sleep ~ baby.sleep + dan.sleep,
+model_large <- lm(dan.grump ~ baby.sleep + dan.sleep,
                   data = parenting)
 ```
-The form of this model is $y = \beta_0 + \beta_1 x_1 + \beta_2 x_2$. If baby.sleep increases by 1 then `dan.grump` increases by $\beta_1$. R will fill in the betas.
 
-
+The form of this model is $y = \beta_0 + \beta_1 x_1 + \beta_2 x_2$. If `baby.sleep` increases by 1, then `dan.grump` increases by $\beta_1$. R will fill in the betas.
 
 ```{r}
 summary(model_large)
 ```
 
-The model here is $y = 125.97 + 0.01 x_1 -8.95 x_2$
+The model here is $y = 125.97 + .01 x_1 - 8.95 x_2$.
 
-Each of these coefficients is optimized for a linear model that
-**includes** the other. Each of the their p-values tests whether 
-
+Each of these coefficients is optimized for a linear model that **includes** the other. Each of their p-values tests whether the coefficient value could plausibly be zero in a model including the other. 
 
 
 

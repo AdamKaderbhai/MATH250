@@ -1,0 +1,79 @@
+---
+title: "Class notes 12.1"
+format: html
+embed-resources: true
+---
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)
+```
+
+## Parallel-slopes model: penguins
+
+```{r}
+ggplot(penguins, aes(x = bill_dep,
+                     y = bill_len,
+                     color = species)) +
+  geom_point() +
+  geom_smooth(method = "lm",
+              se = FALSE) +
+  scale_color_brewer(palette = "Dark2")
+```
+
+Let's get the parallel-slopes model.
+
+```{r}
+model_par <- lm(bill_len ~ bill_dep + species,
+                data = penguins)
+summary(model_par)
+```
+
+The model is $length = 13.2 + 1.4\times depth + 9.9 \times speciesChinstrap + 13.4 \times speciesGentoo$ where speciesChinstrap is 1 is the penguin is a chinstrap and 0 otherwise. Similarly for speciesGentoo.
+
+Here the slop is assumed to be the same for all 3 species, but the intercept could be different. This represents a vertical shift.
+
+## Important notes on p-values
+
+In the last example, we never set a hypothesis. We **cannot** claim statistical significance here. However, p-values are often used after the fact to draw conclusions about variables in the model. 
+
+This is fine as long as you don't pretend they indicate statistical significance. Also, remember that p-vales in multiple regression are very dependent on the other variables in the model.
+
+What if we actually wanted an inference? What hypotheses do those p-values test? Let's consider speciesGentoo. 
+
+$H_0:$ knowing if a penguin is a Gentoo provides a better fit than not knowing **when bill depth and speciesChinstrap is already known**.
+
+A final warning: a p-value measures the likelihood of a type-1 error (false positive) when the null is true. If you're looking at multiple p-values (4 in this example), those probabilities compound.
+
+## Crickets
+
+```{r}
+library(modeldata)
+glimpse(crickets)
+
+ggplot(crickets, aes(x = temp,
+                     y = rate,
+                     color = species)) +
+  geom_point() +
+  geom_smooth(method = "lm",
+              se = FALSE) +
+  scale_color_brewer(palette = "Dark2")
+
+model_sm <- lm(rate ~ temp + species,
+               data = crickets)
+summary(model_sm)
+```
+
+From the plot, it seems plausible that the slopes could be different. What does a model look like that takes this into account?
+
+$rate = \beta_0 + \beta_1\times temp + \beta_2 \times speciesNiveus + \beta_3 \times speciesNiveas\times temp$
+
+The code is simple:
+
+```{r}
+model_lg <- lm(rate ~ temp * species,
+               data = crickets)
+summary(model_lg)
+```

@@ -6,9 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Adam Kaderbhai">
 
-<title>ClassNotes 11.21</title>
+<title>Class notes 11.21</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -2318,19 +2317,13 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">ClassNotes 11.21</h1>
+<h1 class="title">Class notes 11.21</h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Adam Kaderbhai </p>
-          </div>
-  </div>
     
   
     
@@ -2345,13 +2338,12 @@ window.Quarto = {
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>curved <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;curved.csv&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The <code>curved</code> data set is not a great candidate for linear regression but let’s do one anyway</p>
+<p>The <code>curved</code> data set isn’t a great candidate for linear regression, but let’s do one anyway.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(curved, <span class="fu">aes</span>(<span class="at">x =</span> x,</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y =</span> y)) <span class="sc">+</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;lm&quot;</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">se =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(curved, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y)) <span class="sc">+</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;lm&quot;</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">se =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
 </div>
@@ -2365,7 +2357,7 @@ window.Quarto = {
 </div>
 <p>Let’s get the equation and the p-value, etc.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x,</span>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, </span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">data =</span> curved)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -2389,7 +2381,7 @@ Multiple R-squared:  0.8772,    Adjusted R-squared:  0.8766
 F-statistic:  1415 on 1 and 198 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
-<p>In order to check the assumptions of our model we make a residual plot. In order to do this well, we’ll use the function <code>broom::augment</code></p>
+<p>In order to check the assumptions of our model, we make a residual plot. In order to do this well, we’ll use the function <code>broom::augment</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>curved_aug <span class="ot">&lt;-</span> <span class="fu">augment</span>(model)</span>
@@ -2407,9 +2399,9 @@ $ .cooksd    &lt;dbl&gt; 6.462594e-04, 9.717264e-04, 4.410329e-06, 3.922965e-03,
 $ .std.resid &lt;dbl&gt; 0.36878207, -0.54626895, 0.04103308, 0.70386270, 0.74182361…</code></pre>
 </div>
 </div>
-<p>A residual shows residuals (difference between observed and fitted values) versus the fitted values.</p>
+<p>A residual plot shows residuals (difference between observed and fitted values) versus the fitted values.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(curved_aug, <span class="fu">aes</span>(<span class="at">x =</span> .fitted,</span>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(curved_aug, <span class="fu">aes</span>(<span class="at">x =</span> .fitted, </span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">y =</span> .resid)) <span class="sc">+</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;lm&quot;</span>,</span>
@@ -2425,10 +2417,10 @@ $ .std.resid &lt;dbl&gt; 0.36878207, -0.54626895, 0.04103308, 0.70386270, 0.7418
 </div>
 </div>
 </div>
-<p>We can</p>
+<p>We can clearly see a pattern. If linear regression is appropriate, this should just be a pattern-less cloud.</p>
 <section id="multiple-regression" class="level2">
 <h2 class="anchored" data-anchor-id="multiple-regression">Multiple regression</h2>
-<p>let’s return to the <code>parenting</code> set.</p>
+<p>Let’s return to the <code>parenting</code> set.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>parenting <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">&quot;parenting.xlsx&quot;</span>)</span>
@@ -2443,20 +2435,38 @@ $ day        &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
 </div>
 </div>
 <p>Question: Do we get a better model if we consider both <code>dan.sleep</code> and <code>baby.sleep</code> while explaining <code>dan.grump</code>?</p>
-<p>let’s do it and worry about whether it’s a good idea later.</p>
+<p>Let’s just do it and worry about whether it’s a good idea later.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>model_large <span class="ot">&lt;-</span> <span class="fu">lm</span>(dan.sleep <span class="sc">~</span> baby.sleep <span class="sc">+</span> dan.sleep,</span>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>model_large <span class="ot">&lt;-</span> <span class="fu">lm</span>(dan.grump <span class="sc">~</span> baby.sleep <span class="sc">+</span> dan.sleep,</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">data =</span> parenting)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in model.matrix.default(mt, mf, contrasts): the response appeared on
-the right-hand side and was dropped</code></pre>
 </div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in model.matrix.default(mt, mf, contrasts): problem with term 2 in
-model.matrix: no columns are assigned</code></pre>
+<p>The form of this model is <span class="math inline">\(y = \beta_0 + \beta_1 x_1 + \beta_2 x_2\)</span>. If <code>baby.sleep</code> increases by 1, then <code>dan.grump</code> increases by <span class="math inline">\(\beta_1\)</span>. R will fill in the betas.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_large)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = dan.grump ~ baby.sleep + dan.sleep, data = parenting)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-11.0345  -2.2198  -0.4016   2.6775  11.7496 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 125.96557    3.04095  41.423   &lt;2e-16 ***
+baby.sleep    0.01052    0.27106   0.039    0.969    
+dan.sleep    -8.95025    0.55346 -16.172   &lt;2e-16 ***
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+Residual standard error: 4.354 on 97 degrees of freedom
+Multiple R-squared:  0.8161,    Adjusted R-squared:  0.8123 
+F-statistic: 215.2 on 2 and 97 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
-<p>The form of thsis model is <span class="math inline">\(y = \beta_0 + \beta_1 x_1 + \beta_2 x_2\)</span>. If baby.sleep increases by 1 then <code>dan.grump</code> increases by <span class="math inline">\(\beta_1\)</span>. R will fill in the betas.</p>
+<p>The model here is <span class="math inline">\(y = 125.97 + .01 x_1 - 8.95 x_2\)</span>.</p>
+<p>Each of these coefficients is optimized for a linear model that <strong>includes</strong> the other. Each of their p-values tests whether the coefficient value could plausibly be zero in a model including the other.</p>
 </section>
 
 </main>

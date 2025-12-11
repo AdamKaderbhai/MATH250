@@ -1,0 +1,33 @@
+---
+title: "Class notes 10.22"
+format: html
+embed-resources: true
+---
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)
+colors <- read_csv("color_survey.csv")
+```
+
+Consider the distribution of spam ratings:
+
+```{r}
+ggplot(colors, 
+       aes(x = spam_prob)) + 
+  geom_histogram(bins = 100)
+```
+
+One thing you can try on a distribution like this where values <= 0 aren't possible and where there is a very strong right skew is a log transform. Let's use base 10.
+
+```{r}
+ggplot(colors, 
+       aes(x = log10(spam_prob))) + 
+  geom_histogram(bins = 100)
+```
+
+Positives of this: the fine differences are more visible and the data is more amenable to statistical methods like the t-test.
+
+Negatives: the axis is transformed so interpretation is harder for readers.
